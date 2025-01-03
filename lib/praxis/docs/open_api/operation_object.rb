@@ -36,8 +36,10 @@ module Praxis
           # spec that will be generated globally
           api_info = ApiDefinition.instance.infos[action.endpoint_definition.version]
           if (version_with = api_info.version_with)
-            all_parameters.push('$ref' => '#/components/parameters/ApiVersionHeader') if version_with.include?(:header)
-            all_parameters.push('$ref' => '#/components/parameters/ApiVersionParam') if version_with.include?(:params)
+            unless version_with.is_a?(Symbol)
+              all_parameters.push('$ref' => '#/components/parameters/ApiVersionHeader') if version_with.include?(:header)
+              all_parameters.push('$ref' => '#/components/parameters/ApiVersionParam') if version_with.include?(:params)
+            end
           end
 
           h[:description] = action.description if action.description

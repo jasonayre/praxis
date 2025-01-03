@@ -160,7 +160,7 @@ module Praxis
         }
 
         # Common params/headers for versioning (actions will link to them when appropriate, by name)
-        if (version_with = @infos[version].version_with)
+        if (version_with = @infos[version].version_with && !version_with.is_a?(:symbol))
           common_params = {}
           if version_with.include?(:header)
             common_params['ApiVersionHeader'] = {
