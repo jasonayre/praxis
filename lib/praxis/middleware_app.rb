@@ -34,18 +34,37 @@ module Praxis
     end
 
     def call(env)
-      self.class.setup unless self.class.setup_done
+      path = env['PATH_INFO']
 
-      result = Praxis::Application.instance.call(env)
+      if path.start_with?('/apis')  # Replace '/api' with your Praxis route prefix
+        self.class.setup unless self.class.setup_done
+        result = Praxis::Application.instance.call(env)
 
-      if [404, 405].include?(result[0].to_i) && result[1]['X-Cascade'] == 'pass'
-        last_body = result[2]
-        last_body.close if last_body.respond_to? :close
-        target.call(env)
+        if [404, 405].include?(result[0].to_i) && result[1]['X-Cascade'] == 'pass'
+          last_body = result[2]
+          last_body.close if last_body.respond_to? :close
+          target.call(env)
+        else
+          result
+        end
       else
-        # Respect X-Cascade header if it doesn't specify 'pass'
-        result
+        target.call(env)
       end
     end
+
+    # def call(env)
+    #   self.class.setup unless self.class.setup_done
+    #
+    #   result = Praxis::Application.instance.call(env)
+    #
+    #   if [404, 405].include?(result[0].to_i) && result[1]['X-Cascade'] == 'pass'
+    #     last_body = result[2]
+    #     last_body.close if last_body.respond_to? :close
+    #     target.call(env)
+    #   else
+    #     # Respect X-Cascade header if it doesn't specify 'pass'
+    #     result
+    #   end
+    # end
   end
 end
